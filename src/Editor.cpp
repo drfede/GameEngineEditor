@@ -17,6 +17,7 @@ Entity* heightEntity = NULL;
 std::string text = "";
 bool isLoadScreen = false;
 bool canWrite = true;
+bool mapIsLoaded = false;
 int w,h;
 int scale = 1;
 int tileSize = 32;
@@ -99,7 +100,12 @@ void Editor::loadSecondScreen(){
 
 void Editor::loadMap(int w, int h){
   canWrite = false;
-  map->LoadMap("./assets/tilemaps/jungle.map",w,h);
+  map->CreateMap("./assets/tilemaps/newJungle.map",w,h);
+  manager.GetEntityByName("tutorialText")->Destroy();
+  manager.GetEntityByName("heighttesto")->Destroy();
+  manager.GetEntityByName("widthtesto")->Destroy();
+  map->LoadMap("./assets/tilemaps/newJungle.map",w,h);
+  mapIsLoaded = true;
 }
 
 void Editor::ProcessInput(){
@@ -129,11 +135,18 @@ void Editor::ProcessInput(){
           widthEntity->GetComponent<TextLabelComponent>()->SetLabelText(text);
         }
       }
+      break;
     }
     case SDL_MOUSEBUTTONDOWN: {
       int mouseX,mouseY;
       SDL_GetMouseState(&mouseX,&mouseY);
-      std::cout << "X: " << mouseX << " Y: " << mouseY<< std::endl;
+      if (mapIsLoaded){
+        mouseX = mouseX / 32 / 2;
+        mouseY = mouseY / 32 / 2;
+        std::cout << "X: " << mouseX << " Y: " << mouseY<< std::endl;
+        map -> UpdateMap("./assets/tilemaps/newJungle.map",5,5,mouseX,mouseY);
+        map -> LoadMap("./assets/tilemaps/newJungle.map",5,5);
+      }
       break;
     }
     case SDL_KEYDOWN: {
@@ -141,12 +154,12 @@ void Editor::ProcessInput(){
         m_isRunning = false;
         break;
       }
-      if (event.key.keysym.sym == SDLK_RETURN){
+      if (event.key.keysym.sym == SDLK_RETURN || event.key.keysym.sym == SDLK_KP_ENTER){
         if (isLoadScreen){
-          h = atoi(text.c_str());
+          h = static_cast<int>(atoi(text.c_str()));
           loadMap(w,h);
         } else {
-          w = atoi(text.c_str());
+          w = static_cast<int>(atoi(text.c_str()));
         }
         loadSecondScreen();
         break;
@@ -157,6 +170,13 @@ void Editor::ProcessInput(){
 }
 
 void Editor::Update(){
+  while (!SDL_TICKS_PASSED(SDL_GetTicks(), ticksLastFrame + FRAME_TARGET_TIME));
+
+  float deltaTime = (SDL_GetTicks() - ticksLastFrame) / 1000.0f;
+  deltaTime = (deltaTime > 0.05f) ? 0.05f : deltaTime;
+
+  ticksLastFrame = SDL_GetTicks();
+  manager.Update(deltaTime);
 
 }
 

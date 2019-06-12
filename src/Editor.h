@@ -14,6 +14,7 @@ private:
   bool m_isRunning;
   SDL_Window *window;
 public:
+  int ticksLastFrame;
   bool IsRunning() const;
   Editor();
   ~Editor();
