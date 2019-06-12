@@ -1,8 +1,9 @@
 #include "./AssetManager.h"
+#include "./TextureManager.h"
 #include <iostream>
 
 
-AssetManager::AssetManager(){
+AssetManager::AssetManager(EntityManager* manager): manager(manager){
 
 }
 
@@ -16,6 +17,14 @@ void AssetManager::AddFont(std::string fontId, const char* filePath, int fontSiz
 
 TTF_Font* AssetManager::GetFont(std::string fontId){
   return fonts[fontId];
+}
+
+void AssetManager::AddTexture(std::string textureId, const char* filePath){
+  textures.emplace(textureId, TextureManager::LoadTexture(filePath));
+}
+
+SDL_Texture* AssetManager::GetTexture(std::string textureId){
+  return textures[textureId];
 }
 
 void AssetManager::printMap(){

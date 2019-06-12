@@ -6,6 +6,7 @@
 #include "./Entity.h"
 #include "./Component.h"
 #include "./Components/TextLabelComponent.h"
+#include "./Map.h"
 
 
 EntityManager manager;
@@ -15,7 +16,12 @@ Entity* widthEntity = NULL;
 Entity* heightEntity = NULL;
 std::string text = "";
 bool isLoadScreen = false;
-AssetManager* Editor::assetManager = new AssetManager();
+bool canWrite = true;
+int w,h;
+int scale = 1;
+int tileSize = 32;
+AssetManager* Editor::assetManager = new AssetManager(&manager);
+Map* map;
 
 
 
@@ -60,12 +66,17 @@ void Editor::Initialize(int width, int height){
   }
 
   loadFirstScreen();
+  map = new Map("jungle-tiletexture",2,32);
+  //map->LoadMap("./assets/tilemaps/jungle.map",25,20);
+  manager.listAllEntities();
   m_isRunning = true;
   return;
 }
 
 void Editor::loadFirstScreen(){
+
   assetManager->AddFont("charriot-font", std::string("./assets/fonts/charriot.ttf").c_str(),14);
+  assetManager->AddTexture("jungle-tiletexture", std::string("./assets/tilemaps/jungle.png").c_str());
   Entity& text1 (manager.AddEntity("widthtesto"));
   Entity& text2 (manager.AddEntity("heighttesto"));
 
@@ -84,7 +95,11 @@ void Editor::loadSecondScreen(){
   manager.GetEntityByName("tutorialText")->AddComponent<TextLabelComponent>(50,180,"Write the Height of the Map: ","charriot-font",WHITE_COLOR);
   heightEntity = manager.GetEntityByName("heighttesto");
   heightEntity->AddComponent<TextLabelComponent>(260,180,"","charriot-font",WHITE_COLOR);
+}
 
+void Editor::loadMap(int w, int h){
+  canWrite = false;
+  map->LoadMap("./assets/tilemaps/jungle.map",w,h);
 }
 
 void Editor::ProcessInput(){
@@ -105,14 +120,21 @@ void Editor::ProcessInput(){
       break;
     }
     case SDL_TEXTINPUT: {
-      text += event.text.text;
-      std::cout << text << std::endl;
-      if (isLoadScreen){
-        heightEntity->GetComponent<TextLabelComponent>()->SetLabelText(text);
-      } else {
-        widthEntity->GetComponent<TextLabelComponent>()->SetLabelText(text);
-
+      if (canWrite){
+        text += event.text.text;
+        std::cout << text << std::endl;
+        if (isLoadScreen){
+          heightEntity->GetComponent<TextLabelComponent>()->SetLabelText(text);
+        } else {
+          widthEntity->GetComponent<TextLabelComponent>()->SetLabelText(text);
+        }
       }
+    }
+    case SDL_MOUSEBUTTONDOWN: {
+      int mouseX,mouseY;
+      SDL_GetMouseState(&mouseX,&mouseY);
+      std::cout << "X: " << mouseX << " Y: " << mouseY<< std::endl;
+      break;
     }
     case SDL_KEYDOWN: {
       if (event.key.keysym.sym == SDLK_ESCAPE){
@@ -120,8 +142,12 @@ void Editor::ProcessInput(){
         break;
       }
       if (event.key.keysym.sym == SDLK_RETURN){
-        int k = atoi(text.c_str());
-        std::cout << "NUMERO: " << k << std::endl;
+        if (isLoadScreen){
+          h = atoi(text.c_str());
+          loadMap(w,h);
+        } else {
+          w = atoi(text.c_str());
+        }
         loadSecondScreen();
         break;
       }
