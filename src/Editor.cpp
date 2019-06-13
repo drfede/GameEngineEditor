@@ -144,7 +144,7 @@ void Editor::ProcessInput(){
         mouseX = mouseX / 32 / 2;
         mouseY = mouseY / 32 / 2;
         std::cout << "X: " << mouseX << " Y: " << mouseY<< std::endl;
-        map -> UpdateMap("./assets/tilemaps/newJungle.map",5,5,mouseX,mouseY);
+        map -> UpdateMap("./assets/tilemaps/newJungle.map",5,5,mouseX,mouseY,3,10);
         map -> LoadMap("./assets/tilemaps/newJungle.map",5,5);
       }
       break;

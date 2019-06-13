@@ -31,26 +31,52 @@ void Map::LoadMap(std::string filePath, int mapSizeX, int mapSizeY){
   }
 }
 
-void Map::UpdateMap(std::string filePath, int mapSizeX, int mapSizeY, int toChangeX, int toChangeY){
+void Map::UpdateMap(std::string filePath, int mapSizeX, int mapSizeY, int toChangeX, int toChangeY, int RowTile, int ColTile){
   std::fstream mapFile;
   mapFile.open(filePath);
+  int sourceRectY;
+  int sourceRectX;
+  int val;
 
   for (int y = 0; y < mapSizeY; y++){
     for (int x = 0; x < mapSizeX; x++){
       char ch;
-      if (x == toChangeX-1 && y == toChangeY-1){
-        int newX = mapFile.peek();
-        mapFile << static_cast<char>(newX+1);
+      if (x == toChangeX && y == toChangeY){
         int newY = mapFile.peek();
-        mapFile << static_cast<char>(newY+1);
-        std::cout << "LAX: " << static_cast<char>(newX) << " LAY: " << static_cast<char>(newY) <<std::endl;
+        mapFile.get(ch);
+        int newX = mapFile.peek();
+        val = (ColTile - 1);
+
+        std::cout << "preLAX: " << static_cast<char>(newX) << " preLAY: " << static_cast<char>(newY) <<std::endl;
+        mapFile.unget();
+
+        if (newX == ColTile+48){
+          newY = (newY+1)%(RowTile);
+          newY +=48;
+          mapFile << static_cast<char>(newY);
+          newX = int('0');
+          mapFile << static_cast<char>(newX);
+          std::cout <<"ARGH" << std::endl;
+        } else {
+          mapFile << static_cast<char>(newY);
+          newX += 1;
+          mapFile << static_cast<char>(newX);
+        }
+        // std::cout << "LAX: " << static_cast<char>(newX) << " LAY: " << static_cast<char>(newY) <<std::endl;
+        mapFile.unget();
+        sourceRectY = newY * tileSize;
+        sourceRectX = newX * tileSize;
+        AddTile(sourceRectX, sourceRectY, x * (scale * tileSize), y * (scale * tileSize));
+        mapFile.ignore(); //there's a comma to avoid
+
+      } else {
+        mapFile.get(ch);
+        sourceRectY = atoi(&ch) * tileSize;
+        mapFile.get(ch);
+        sourceRectX = atoi(&ch) * tileSize;
+        AddTile(sourceRectX, sourceRectY, x * (scale * tileSize), y * (scale * tileSize));
+        mapFile.ignore(); //there's a comma to avoid
       }
-      mapFile.get(ch);
-      int sourceRectY = atoi(&ch) * tileSize;
-      mapFile.get(ch);
-      int sourceRectX = atoi(&ch) * tileSize;
-      AddTile(sourceRectX, sourceRectY, x * (scale * tileSize), y * (scale * tileSize));
-      mapFile.ignore(); //there's a comma to avoid
     }
   }
 }
