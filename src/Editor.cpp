@@ -77,12 +77,14 @@ void Editor::Initialize(int width, int height){
 void Editor::loadFirstScreen(){
 
   assetManager->AddFont("charriot-font", std::string("./assets/fonts/charriot.ttf").c_str(),14);
+  assetManager->AddFont("charriot-font-big", std::string("./assets/fonts/charriot.ttf").c_str(),20);
   assetManager->AddTexture("jungle-tiletexture", std::string("./assets/tilemaps/jungle.png").c_str());
   Entity& text1 (manager.AddEntity("widthtesto"));
   Entity& text2 (manager.AddEntity("heighttesto"));
 
   Entity& tutorialText (manager.AddEntity("tutorialText"));
-  tutorialText.AddComponent<TextLabelComponent>(300,10,"Choose the dimensions","charriot-font",WHITE_COLOR);
+  tutorialText.AddComponent<TextLabelComponent>(300,10,"Game Engine Editor","charriot-font-big",WHITE_COLOR);
+  tutorialText.AddComponent<TextLabelComponent>(315,60,"Choose the dimensions","charriot-font",WHITE_COLOR);
   tutorialText.AddComponent<TextLabelComponent>(50,150,"Write the Width of the Map: ","charriot-font",WHITE_COLOR);
   widthEntity = manager.GetEntityByName("widthtesto");
   widthEntity->AddComponent<TextLabelComponent>(260,150,"","charriot-font",WHITE_COLOR);
@@ -121,8 +123,6 @@ void Editor::ProcessInput(){
       break;
     }
     case SDLK_TAB: {
-      text += "\n";
-      std::cout << "AKKAPO";
       break;
     }
     case SDL_TEXTINPUT: {
@@ -145,6 +145,7 @@ void Editor::ProcessInput(){
         mouseY = mouseY / 32 / 2;
         std::cout << "X: " << mouseX << " Y: " << mouseY<< std::endl;
         map -> UpdateMap("./assets/tilemaps/newJungle.map",5,5,mouseX,mouseY,3,10);
+        manager.ClearData();
         map -> LoadMap("./assets/tilemaps/newJungle.map",5,5);
       }
       break;
